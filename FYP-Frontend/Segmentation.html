@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+</head>
+<style>
+  body {
+    height: 700px;
+    background: linear-gradient(to bottom right, rgb(179, 177, 177), rgb(44, 42, 42));
+  }
+
+  h1 {
+    font-family: 'Black Ops One', cursive;
+    color: white;
+    letter-spacing: 3px;
+    word-spacing: 6px;
+    margin: 20px;
+  }
+
+  form {
+    margin-left: 30px;
+    margin-top: 40px;
+  }
+
+  label {
+    font-size: larger;
+    color: white;
+    font-weight: bold;
+  }
+
+  input {
+    font-size: large;
+    color: white;
+  }
+
+  h2 {
+    color: white;
+  }
+
+  .flex-container {
+    display: flex;
+    flex-direction: row;
+    font-size: 20px;
+  }
+
+  .flex-item-left {
+    padding: 10px;
+    flex: 50%;
+  }
+
+  button {
+    margin-top: 10px;
+    width: 150px;
+    height: 35px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 18px;
+  }
+
+  @media (max-width: 800px) {
+    .flex-container {
+      flex-direction: column;
+    }
+  }
+
+  #canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 30%;
+    height: 40%;
+  }
+</style>
+
+<body>
+  <div>
+    <h1>Annotate Me</h1>
+  </div>
+  <div>
+    <div class="flex-container">
+      <div class="flex-item-left">
+        <div>
+          <canvas id="canvas"></canvas>
+          <label for="uploader">Select file:</label>
+          <input type="file" id="uploader" />
+          <button>Download</button>
+        </div>
+        <h2>Mask Type</h2>
+
+        <button onclick="binaryThresholding()">Thresholding</button><br>
+        <button onclick="performAdaptiveThresholding()" style="width: 185px; height: 52px; margin-top:20px; border-radius: 25px;">Adaptive
+          Thresholding</button><br>
+        <button style="width: 185px; height: 52px; margin-top:20px; border-radius: 25px;">Otsue
+          Thresholding</button><br>
+
+        <div id="mask" style="margin-top: 50px;">
+
+          <button>Remove</button><br>
+          <button style="float: left; margin-left: 750px;">Save</button>
+          <button style="margin-left: 10px;">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const reader = new FileReader();
+    const img = new Image();
+
+    function performAdaptiveThresholding() {
+      // HTTP POST Request using fetch API / axios
+      // Body: {img}
+      debugger;
+      if (img) {
+        axios.post('http://127.0.0.1:5000/adaptive', {
+          imageData: img.src,
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      } 
+      
+    }
+    const uploadImage = (e) => {
+      reader.onload = () => {
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    };
+    const imageLoader = document.getElementById("uploader");
+    imageLoader.addEventListener("change", uploadImage);
+
+    function download() {
+      const image = canvas.toDataURL();
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = "image.png";
+      link.click();
+    }
+    document.querySelector("button").addEventListener("click", download);
+  </script>
+  <!-- Added CDN for axios -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</body>
+
+</html>
